@@ -1,5 +1,5 @@
 # maple4j
-[![GH Actions Pipeline Status](https://github.com/rotgruengelb/maple4j-test/actions/workflows/1.pipeline.yml/badge.svg)](https://github.com/rotgruengelb/maple4j-test/actions/workflows/1.pipeline.yml)
+[![GH Actions Pipeline Status](https://github.com/rotgruengelb/maple4j/actions/workflows/1.pipeline.yml/badge.svg)](https://github.com/rotgruengelb/maple4j-test/actions/workflows/1.pipeline.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/net.rotgruengelb/maple4j.svg)](https://central.sonatype.com/artifact/net.rotgruengelb/maple4j)
 [![Javadoc](https://img.shields.io/badge/JavaDoc-Online-green)](https://rotgruengelb.github.io/maple4j/javadoc/)
 
