@@ -1,0 +1,28 @@
+<!-- The PR title should follow conventional commits (https://conventionalcommits.org) -->
+<!-- Thanks for taking your time to contribute! -->
+
+### Type of change
+
+<!-- Select all applicable boxes.  -->
+
+- [ ] 📖 Documentation: Updates to the documentation, readme or JSdoc annotations.
+- [ ] 🐛 Fix: Non-breaking changes that fix an issue.
+- [ ] ⚡️ Enhancement: Improving an existing functionality.
+- [ ] 🧩 Feature: Non-breaking changes that add new functionality.
+- [ ] 🧹 Chore: Updates to the build process or dependencies.
+- [ ] ⚠️ Breaking change: Fixes or features that will cause existing functionality to change.
+
+### Description and Context
+
+<!-- Describe your changes in detail. -->
+<!-- Why is this change required? What problem does it seek to solve? -->
+<!-- If this resolves an open issue link it like this: "Resolves #42". -->
+
+### Tests
+
+<!-- How did you tested your changes. -->
+<!-- Include details of your testing environment, tests ran to see how -->
+<!-- your change affects other areas of the code, etc. -->
+
+
+

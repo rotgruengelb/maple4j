@@ -1,0 +1,28 @@
+[versions]
+junit = "5.11.3"
+assertj = "3.26.3"
+testcontainers = "1.20.3"
+publish_nexus_plugin = "2.0.0"
+release_plugin = "3.0.2"
+annotations = "26.0.1"
+antlr = "4.13.2"
+jmh_core = "1.37"
+
+[libraries]
+junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
+testcontainers_junit5 = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
+annotations = { module = "org.jetbrains:annotations", version.ref = "annotations" }
+jmh_core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh_core" }
+jmh_annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh_core" }
+antlr = { module = "org.antlr:antlr4", version.ref = "antlr" }
+antlr_runtime = { module = "org.antlr:antlr4-runtime", version.ref = "antlr" }
+
+[bundles]
+junit_assertj = ["junit", "assertj"]
+testcontainers_junit = ["testcontainers", "testcontainers_junit5"]
+
+[plugins]
+publish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "publish_nexus_plugin" }
+release = { id = "net.researchgate.release", version.ref = "release_plugin" }

@@ -1,0 +1,49 @@
+name: Publish
+on:
+  workflow_call:
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project sources
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+          
+      - uses: gradle/actions/wrapper-validation@v4
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: true
+
+      - name: Publish SNAPSHOT to Sonatype OSSRH Snapshots & rotgruengelb.net Maven
+        if: github.ref == 'refs/heads/main'
+        env:
+          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+          GPG_SIGNING_PASSPHRASE: ${{ secrets.GPG_SIGNING_PASSPHRASE }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          RGGM_PASSWORD: ${{ secrets.RGGM_PASSWORD }}
+          RGGM_USERNAME: ${{ secrets.RGGM_USERNAME }}
+        run: |
+          ./gradlew publish -Psigning.keyId="$GPG_SIGNING_KEY" -Psigning.password="$GPG_SIGNING_PASSPHRASE" -Psigning.secretKeyRingFile=$(echo ~/.gradle/secring.gpg) --warn --stacktrace
+          ./gradlew closeAndReleaseSonatypeStagingRepository
+
+      - name: Publish RELEASE to Sonatype (Maven Central) & rotgruengelb.net Maven
+        if: github.ref_type == 'tag'
+        env:
+          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+          GPG_SIGNING_PASSPHRASE: ${{ secrets.GPG_SIGNING_PASSPHRASE }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          RGGM_PASSWORD: ${{ secrets.RGGM_PASSWORD }}
+          RGGM_USERNAME: ${{ secrets.RGGM_USERNAME }}
+        run: |
+          ./gradlew publish -Psigning.keyId="$GPG_SIGNING_KEY" -Psigning.password="$GPG_SIGNING_PASSPHRASE" -Psigning.secretKeyRingFile=$(echo ~/.gradle/secring.gpg) --warn --stacktrace
+          ./gradlew closeAndReleaseSonatypeStagingRepository

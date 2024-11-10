@@ -1,0 +1,36 @@
+name: "Feature request"
+description: Suggest an feature for this project
+labels: ["pending triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for submitting a feature request!
+
+        Please review the contribution guide before proceeding:
+        https://github.com/rotgruengelb/maple4j-test/blob/main/CONTRIBUTING.md
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Describe the feature
+      description: Provide a clear description of the feature, its use cases, and alternatives. If you have a prototype, include a link.
+      placeholder: Feature description
+    validations:
+      required: true
+  - type: checkboxes
+    id: additional-info
+    attributes:
+      label: Additional information
+      description: Any additional details that may help us evaluate the request.
+      options:
+        - label: Are you able/willing to help implement this feature?
+  - type: checkboxes
+    id: required-info
+    attributes:
+      label: Final checks
+      description: Before submitting, confirm you've:
+      options:
+        - label: Read the [contribution guidelines](https://github.com/rotgruengelb/maple4j-test/blob/main/CONTRIBUTING.md).
+          required: true
+        - label: Checked existing [discussions](https://github.com/rotgruengelb/maple4j-test/discussions) and [issues](https://github.com/rotgruengelb/maple4j-test/issues).
+          required: true

@@ -1,0 +1,27 @@
+name: PR Checklist
+
+on:
+  workflow_run:
+    workflows: ["dependabot-changelog.yml"]  # Make sure that dependabot-changelog.yml runs first in Dependabot PRs.
+    types:
+      - completed  #  skipped || succeeded || failed
+
+jobs:
+  checklist:
+    name: PR Checklist
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion != 'cancelled' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check if CHANGELOG.md was updated
+        run: |
+          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "CHANGELOG.md"; then
+            echo "CHANGELOG.md was updated."
+          else
+            echo "CHANGELOG.md was not updated."
+            echo "::error::You must update the CHANGELOG.md file."
+            exit 1
+          fi
