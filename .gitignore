@@ -8,3 +8,4 @@ build
 
 # Ignore Github Workflow Release Notes
 *-RELEASE_NOTES.md
+RELEASE_NOTES.md
