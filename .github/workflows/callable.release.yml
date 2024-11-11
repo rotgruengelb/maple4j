@@ -1,4 +1,4 @@
-name: Gradle Release
+name: Release
 
 on:
   workflow_call:
@@ -30,16 +30,16 @@ jobs:
         with:
           ref: main
           token: ${{ secrets.CI_GITHUB_TOKEN }}
-
+          
       - name: Setup Java and Gradle
         uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: '21'
-        - uses: gradle/actions/wrapper-validation@v4
-        - uses: gradle/actions/setup-gradle@v4
-          with:
-            cache-read-only: true
+      - uses: gradle/actions/wrapper-validation@v4
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: true
 
       - name: Get current version from gradle.properties
         run: |
