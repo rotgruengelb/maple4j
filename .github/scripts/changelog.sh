@@ -52,9 +52,87 @@ function prepare_changelog() {
     echo "Prepared changelog with new entry for '$TAG'"
 }
 
-# Other functions remain unchanged...
+function get_change_log_notes() {
+    local changelog="$CHANGELOG_PATH"
+    local current_section_notes=()
+    local in_current_section=false
+    local last_tag=""
 
-# Main script logic with improved messages as needed
+    # Get the last tag for comparison
+    run_command git fetch --tags
+
+    local all_tags
+    all_tags=$(git tag -l --sort=-version:refname 'v*')
+
+    for tag_item in $all_tags; do
+        if [[ -z "$tag_item" ]]; then
+            continue
+        fi
+        if [[ "$tag_item" < "$TAG" ]]; then
+            last_tag="$tag_item"
+            break
+        fi
+    done
+
+    while IFS= read -r line; do
+        if [[ "$line" == "## "* ]]; then
+            if [[ "$line" == "## Unreleased"* ]]; then
+                continue
+            elif [[ "$line" == "## [$TAG]"* ]]; then
+                in_current_section=true
+                continue
+            else
+                break
+            fi
+        fi
+
+        if $in_current_section; then
+            current_section_notes+=("$line")
+        fi
+    done < "$changelog"
+
+    if [ ${#current_section_notes[@]} -eq 0 ]; then
+        echo "No notes found in the current section"
+        exit 1
+    fi
+
+    # Create a comparison link if there's a previous tag
+    local compare_link=""
+    if [ -n "$last_tag" ]; then
+        compare_link="https://github.com/rotgruengelb/maple4j/compare/$last_tag...$TAG"
+        current_section_notes+=("")
+        current_section_notes+=("**[Full Changelog]($compare_link)**")
+    fi
+
+    echo -e "## What's Changed\n\n${current_section_notes[*]}\n"
+}
+
+function get_commit_history() {
+    local new_version="$TAG"
+
+    run_command git fetch --tags
+
+    local all_tags
+    all_tags=$(git tag -l --sort=-version:refname 'v*')
+
+    local last_tag=""
+    for tag_item in $all_tags; do
+        if [[ -z "$tag_item" ]]; then
+            continue
+        fi
+        if [[ "$tag_item" < "$new_version" ]]; then
+            last_tag="$tag_item"
+            break
+        fi
+    done
+
+    if [ -n "$last_tag" ]; then
+        run_command git log "$last_tag..$TAG" --oneline --first-parent
+    else
+        run_command git log --oneline --first-parent
+    fi
+}
+
 if [ "$#" -ne 1 ]; then
     echo "::error::Usage: changelog.sh <version>"
     exit 1
