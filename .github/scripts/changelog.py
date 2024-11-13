@@ -2,6 +2,8 @@ import os
 import re
 import subprocess
 from datetime import datetime
+import argparse
+import sys
 
 def run_command(command):
     """Runs a shell command and returns the output."""
