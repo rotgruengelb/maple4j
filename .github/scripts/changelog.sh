@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+set -x  # Start debugging output
 
 TAG=""
 CHANGELOG_PATH=${CHANGELOG_PATH:-"CHANGELOG.md"}
@@ -14,7 +15,7 @@ function run_command() {
 }
 
 function prepare_changelog() {
-    echo "Preparing changelog..."
+    echo "Preparing changelog for version $TAG..."
 
     if [ ! -f "$CHANGELOG_PATH" ]; then
         echo "::error::Changelog file '$CHANGELOG_PATH' does not exist."
@@ -54,18 +55,22 @@ function prepare_changelog() {
 }
 
 function get_change_log_notes() {
-    echo "Retrieving changelog notes..."
+    echo "Retrieving changelog notes for version $TAG..."
 
     local current_section_notes=()
     local in_current_section=false
     local last_tag=""
 
-    # Fetch tags and check for errors
-    run_command git fetch --tags
+    run_command git fetch --tags || {
+        echo "::error::Failed to fetch git tags."
+        exit 1
+    }
 
-    # Fetch the list of tags and sort in descending order
     local all_tags
-    all_tags=$(git tag -l --sort=-version:refname 'v*')
+    all_tags=$(git tag -l --sort=-version:refname 'v*') || {
+        echo "::error::Failed to list git tags."
+        exit 1
+    }
 
     for tag_item in $all_tags; do
         if [[ "$tag_item" < "$TAG" ]]; then
@@ -96,7 +101,6 @@ function get_change_log_notes() {
         exit 1
     fi
 
-    # Create a comparison link if there's a previous tag
     local compare_link=""
     if [ -n "$last_tag" ]; then
         compare_link="https://github.com/rotgruengelb/maple4j/compare/$last_tag...$TAG"
@@ -108,13 +112,19 @@ function get_change_log_notes() {
 }
 
 function get_commit_history() {
-    echo "Retrieving commit history..."
+    echo "Retrieving commit history for version $TAG..."
 
-    run_command git fetch --tags
+    run_command git fetch --tags || {
+        echo "::error::Failed to fetch git tags."
+        exit 1
+    }
 
     local last_tag=""
     local all_tags
-    all_tags=$(git tag -l --sort=-version:refname 'v*')
+    all_tags=$(git tag -l --sort=-version:refname 'v*') || {
+        echo "::error::Failed to list git tags."
+        exit 1
+    }
 
     for tag_item in $all_tags; do
         if [[ "$tag_item" < "$TAG" ]]; then
@@ -130,6 +140,8 @@ function get_commit_history() {
     fi
 }
 
+set +x  # Stop debugging output
+
 if [ "$#" -ne 1 ]; then
     echo "::error::Usage: changelog.sh <version>"
     exit 1
@@ -137,7 +149,9 @@ fi
 
 TAG="v$1"
 echo "Starting changelog preparation for version $TAG..."
-
+echo "-> prepare_changelog"
 prepare_changelog || exit 1
+echo "-> get_change_log_notes"
 get_change_log_notes || exit 1
+echo "-> get_commit_history"
 get_commit_history || exit 1
