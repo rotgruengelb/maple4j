@@ -3,8 +3,10 @@
 set -e
 set -x  # Start debugging output
 
-TAG=""
+TAG="v$1"  # Set TAG directly from the argument passed to the script
 CHANGELOG_PATH=${CHANGELOG_PATH:-"CHANGELOG.md"}
+
+echo "TAG is set to $TAG"  # Debugging: Confirm TAG value
 
 function run_command() {
     "$@"
