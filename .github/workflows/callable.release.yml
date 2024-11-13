@@ -22,15 +22,18 @@ jobs:
             echo "Unknown release type: $TYPE"
             exit 1
           fi
+
       - name: Checkout project sources ('main' branch)
         uses: actions/checkout@v4
         with:
           ref: main
           token: ${{ secrets.CI_GITHUB_TOKEN }}
+
       - uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: '21'
+
       - uses: gradle/actions/wrapper-validation@v4
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -62,25 +65,27 @@ jobs:
             echo "new_version=${major}.${minor}.${patch}" >> $GITHUB_ENV
             echo "new_snapshot_version=${major}.${minor}.$((patch+1))-SNAPSHOT" >> $GITHUB_ENV
           fi
+
       - name: Set git config 'user.name' and 'user.email'
         run: |
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "GitHub Actions"
-      - name: Release notes
+
+      - name: Generate Release Notes
         run: |
-          chmod +x ./.github/scripts/changelog.sh
-          ./.github/scripts/changelog.sh ${{ env.new_version }}
+          python /path/to/your/changelog_script.py ${{ env.new_version }}
           git add .
           git commit -m "[Auto-CHANGELOG] Release ${{ env.new_version }}"
           git push
+
       - name: Run 'gradle release'
         run: |
           echo "Type: ${{ inputs.type }}"
           echo "Current version: ${{ env.current_version }}"
           echo "New version: ${{ env.new_version }}"
           echo "New snapshot version: ${{ env.new_snapshot_version }}"
-          echo "./gradlew release -Prelease.useAutomaticVersion=true -Prelease.releaseVersion=${{ env.new_version }} -Prelease.newVersion=${{ env.new_snapshot_version }}"
-          gradle release -Prelease.useAutomaticVersion=true -Prelease.releaseVersion=${{ env.new_version }} -Prelease.newVersion=${{ env.new_snapshot_version }}
+          ./gradlew release -Prelease.useAutomaticVersion=true -Prelease.releaseVersion=${{ env.new_version }} -Prelease.newVersion=${{ env.new_snapshot_version }}
+
       - name: GitHub Release
         uses: softprops/action-gh-release@v2
         env:
