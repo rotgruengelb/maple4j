@@ -86,7 +86,11 @@ def get_change_log_notes(changelog_path, tag):
     print(f"Notes written to {release_notes_path}")
 
 def main():
-    tag = os.getenv("TAG", "").lstrip("v")
+    parser = argparse.ArgumentParser(description="Generate release notes from changelog.")
+    parser.add_argument("tag", help="The release tag (e.g., '1.0.0').")
+    args = parser.parse_args()
+
+    tag = args.tag.lstrip("v")  # Remove leading 'v' if present
     changelog_path = "CHANGELOG.md"
     release_notes_path = "RELEASE_NOTES.md"
     
@@ -94,8 +98,8 @@ def main():
     print(f"RELEASE_NOTES_PATH: {release_notes_path}")
     
     if not tag:
-        print("TAG environment variable is missing or empty.")
-        exit(1)
+        print("The tag argument is missing or empty.")
+        sys.exit(1)
     
     prepare_changelog(changelog_path, release_notes_path, tag)
     get_change_log_notes(changelog_path, f"v{tag}")
