@@ -1,4 +1,4 @@
-name: Release
+name: Gradle Release
 
 on:
   workflow_call:
@@ -18,90 +18,74 @@ jobs:
           TYPE: ${{ inputs.type }}
         run: |
           valid_types=(major minor patch)
-          if [[ ! " ${valid_types[*]} " =~ " $TYPE " ]]; then
-            echo "::error::Unknown release type: '$TYPE'. Allowed types are: ${valid_types[*]}"
+          if [[ ! ${valid_types[*]} =~ "$TYPE" ]]; then
+            echo "Unknown release type: $TYPE"
             exit 1
-          else
-            echo "Release type '$TYPE' is valid."
           fi
-
       - name: Checkout project sources ('main' branch)
         uses: actions/checkout@v4
         with:
           ref: main
           token: ${{ secrets.CI_GITHUB_TOKEN }}
-          
-      - name: Setup Java and Gradle
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: '21'
       - uses: gradle/actions/wrapper-validation@v4
-      - uses: gradle/actions/setup-gradle@v4
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
         with:
           cache-read-only: true
 
-      - name: Get current version from gradle.properties
+      - name: Get current version
         run: |
-          source gradle.properties || { echo "::error::Failed to source gradle.properties"; exit 1; }
-          echo "Current project version: ${version}"
+          source gradle.properties
           echo "current_version=${version}" >> $GITHUB_ENV
 
-      - name: Determine new version based on release type
+      - name: Determine version type
         env:
           TYPE: ${{ inputs.type }}
           VERSION: ${{ env.current_version }}
         run: |
-          major=$(echo "${VERSION}" | cut -d. -f1)
-          minor=$(echo "${VERSION}" | cut -d. -f2)
-          patch=$(echo "${VERSION}" | cut -d. -f3 | cut -d- -f1)
-          echo "Parsed version: major=${major}, minor=${minor}, patch=${patch}"
-
-          if [[ "$TYPE" == "major" ]]; then
-            new_version="$((major+1)).0.0"
-            new_snapshot_version="$((major+1)).0.1-SNAPSHOT"
-          elif [[ "$TYPE" == "minor" ]]; then
-            new_version="${major}.$((minor+1)).0"
-            new_snapshot_version="${major}.$((minor+1)).1-SNAPSHOT"
-          else
-            new_version="${major}.${minor}.$((patch+1))"
-            new_snapshot_version="${major}.${minor}.$((patch+1))-SNAPSHOT"
-          fi
+          export major=$(echo "${VERSION}" | cut -d. -f1)
+          export minor=$(echo "${VERSION}" | cut -d. -f2)
+          export patch=$(echo "${VERSION}" | cut -d. -f3 | cut -d- -f1)
+          echo "resolved: ${major}.${minor}.${patch}"
           
-          echo "Resolved new version: $new_version"
-          echo "Resolved new snapshot version: $new_snapshot_version"
-          echo "new_version=$new_version" >> $GITHUB_ENV
-          echo "new_snapshot_version=$new_snapshot_version" >> $GITHUB_ENV
-
-      - name: Set git config
+          if [[ "$TYPE" == "major" ]]; then
+            echo "new_version=$((major+1)).0.0" >> $GITHUB_ENV
+            echo "new_snapshot_version=$((major+1)).0.1-SNAPSHOT" >> $GITHUB_ENV
+          elif [ "$TYPE" == "minor" ]; then
+            echo "new_version=${major}.$((minor+1)).0" >> $GITHUB_ENV
+            echo "new_snapshot_version=${major}.$((minor+1)).1-SNAPSHOT" >> $GITHUB_ENV
+          else
+            echo "new_version=${major}.${minor}.${patch}" >> $GITHUB_ENV
+            echo "new_snapshot_version=${major}.${minor}.$((patch+1))-SNAPSHOT" >> $GITHUB_ENV
+          fi
+      - name: Set git config 'user.name' and 'user.email'
         run: |
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "GitHub Actions"
-
-      - name: Generate release notes
+          git config --local user.name "GitHub Actions"
+      - name: Release notes
         run: |
           chmod +x ./.github/scripts/changelog.sh
-          echo "Generating release notes for version ${new_version}..."
-          ./.github/scripts/changelog.sh "${new_version}" > "$GITHUB_WORKSPACE/RELEASE_NOTES.md"
-
-      - name: Commit release notes
+          ./.github/scripts/changelog.sh ${{ env.new_version }}
+          git add .
+          git commit -m "[Auto-CHANGELOG] Release ${{ env.new_version }}"
+          git push
+      - name: Run 'gradle release'
         run: |
-          git add "$GITHUB_WORKSPACE/RELEASE_NOTES.md" || { echo "::error::Failed to add release notes to git"; exit 1; }
-          git commit -m "[Auto-CHANGELOG] Release ${new_version}" || { echo "::error::Failed to commit release notes"; exit 1; }
-          git push || { echo "::error::Failed to push release notes"; exit 1; }
-
-      - name: Run Gradle release task
-        run: |
-          echo "Starting Gradle release task..."
-          gradle release -Prelease.useAutomaticVersion=true -Prelease.releaseVersion="${new_version}" -Prelease.newVersion="${new_snapshot_version}" || {
-            echo "::error::Gradle release task failed"; exit 1;
-          }
-
-      - name: Create GitHub Release
+          echo "Type: ${{ inputs.type }}"
+          echo "Current version: ${{ env.current_version }}"
+          echo "New version: ${{ env.new_version }}"
+          echo "New snapshot version: ${{ env.new_snapshot_version }}"
+          echo "./gradlew release -Prelease.useAutomaticVersion=true -Prelease.releaseVersion=${{ env.new_version }} -Prelease.newVersion=${{ env.new_snapshot_version }}"
+          gradle release -Prelease.useAutomaticVersion=true -Prelease.releaseVersion=${{ env.new_version }} -Prelease.newVersion=${{ env.new_snapshot_version }}
+      - name: GitHub Release
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.CI_GITHUB_TOKEN }}
         with:
           token: ${{ secrets.CI_GITHUB_TOKEN }}
           tag_name: ${{ env.new_version }}
-          body_path: "$GITHUB_WORKSPACE/RELEASE_NOTES.md"
+          body_path: ${{ github.workspace }}/RELEASE_NOTES.md
