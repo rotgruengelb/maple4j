@@ -50,7 +50,7 @@ def prepare_changelog(changelog_path, release_notes_path, tag):
     
     print(f"Updated changelog written to {changelog_path}")
 
-def get_change_log_notes(changelog_path, tag):
+def get_change_log_notes(changelog_path, tag, release_notes_path):
     print("Extracting changelog notes...")
     
     # Fetch tags from git
@@ -61,7 +61,6 @@ def get_change_log_notes(changelog_path, tag):
     # Read the changelog and find the notes for the current tag
     current_section_notes = []
     in_current_section = False
-    last_tag = None
     
     with open(changelog_path, 'r') as f:
         for line in f:
@@ -104,7 +103,7 @@ def main():
         sys.exit(1)
     
     prepare_changelog(changelog_path, release_notes_path, tag)
-    get_change_log_notes(changelog_path, f"{tag}")
+    get_change_log_notes(changelog_path, tag, release_notes_path)
 
 if __name__ == "__main__":
     main()
