@@ -14,14 +14,15 @@ function run_command() {
 }
 
 function prepare_changelog() {
-    local changelog="$CHANGELOG_PATH"
-    if [ ! -f "$changelog" ]; then
-        echo "::error::Changelog file '$changelog' does not exist."
+    echo "Preparing changelog..."
+
+    if [ ! -f "$CHANGELOG_PATH" ]; then
+        echo "::error::Changelog file '$CHANGELOG_PATH' does not exist."
         exit 1
     fi
 
     local insert_index=-1
-    mapfile -t lines < "$changelog"
+    mapfile -t lines < "$CHANGELOG_PATH"
 
     for i in "${!lines[@]}"; do
         if [[ "${lines[$i]}" == "## Unreleased"* ]]; then
@@ -45,29 +46,28 @@ function prepare_changelog() {
 
     lines=("${lines[@]:0:$insert_index}" "" "## [$TAG]($tag_url) - $date" "${lines[@]:$insert_index}")
 
-    printf "%s\n" "${lines[@]}" > "$changelog" || {
-        echo "::error::Failed to write to '$changelog'"
+    printf "%s\n" "${lines[@]}" > "$CHANGELOG_PATH" || {
+        echo "::error::Failed to write to '$CHANGELOG_PATH'"
         exit 1
     }
-    echo "Prepared changelog with new entry for '$TAG'"
+    echo "Changelog updated with new entry for '$TAG'."
 }
 
 function get_change_log_notes() {
-    local changelog="$CHANGELOG_PATH"
+    echo "Retrieving changelog notes..."
+
     local current_section_notes=()
     local in_current_section=false
     local last_tag=""
 
-    # Get the last tag for comparison
+    # Fetch tags and check for errors
     run_command git fetch --tags
 
+    # Fetch the list of tags and sort in descending order
     local all_tags
     all_tags=$(git tag -l --sort=-version:refname 'v*')
 
     for tag_item in $all_tags; do
-        if [[ -z "$tag_item" ]]; then
-            continue
-        fi
         if [[ "$tag_item" < "$TAG" ]]; then
             last_tag="$tag_item"
             break
@@ -89,10 +89,10 @@ function get_change_log_notes() {
         if $in_current_section; then
             current_section_notes+=("$line")
         fi
-    done < "$changelog"
+    done < "$CHANGELOG_PATH"
 
     if [ ${#current_section_notes[@]} -eq 0 ]; then
-        echo "No notes found in the current section"
+        echo "::warning::No notes found in the changelog section for '$TAG'."
         exit 1
     fi
 
@@ -108,19 +108,16 @@ function get_change_log_notes() {
 }
 
 function get_commit_history() {
-    local new_version="$TAG"
+    echo "Retrieving commit history..."
 
     run_command git fetch --tags
 
+    local last_tag=""
     local all_tags
     all_tags=$(git tag -l --sort=-version:refname 'v*')
 
-    local last_tag=""
     for tag_item in $all_tags; do
-        if [[ -z "$tag_item" ]]; then
-            continue
-        fi
-        if [[ "$tag_item" < "$new_version" ]]; then
+        if [[ "$tag_item" < "$TAG" ]]; then
             last_tag="$tag_item"
             break
         fi
@@ -139,7 +136,8 @@ if [ "$#" -ne 1 ]; then
 fi
 
 TAG="v$1"
-echo "Preparing changelog for version $TAG..."
+echo "Starting changelog preparation for version $TAG..."
+
 prepare_changelog || exit 1
 get_change_log_notes || exit 1
 get_commit_history || exit 1
