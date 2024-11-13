@@ -55,7 +55,7 @@ def get_change_log_notes(changelog_path, tag):
     
     # Fetch tags from git
     run_command(["git", "fetch", "--tags"])
-    all_tags = run_command(["git", "tag", "-l", "--sort=-version:refname", "v*"]).splitlines()
+    all_tags = run_command(["git", "tag", "-l", "--sort=-version:refname", "*"]).splitlines()
     print(f"All tags found: {', '.join(all_tags)}")
     
     # Read the changelog and find the notes for the current tag
@@ -66,7 +66,7 @@ def get_change_log_notes(changelog_path, tag):
     with open(changelog_path, 'r') as f:
         for line in f:
             print(f"Reading line: {line.strip()}")
-            if re.match(r"^## \[v", line):
+            if re.match(r"^## \[", line):
                 if in_current_section:
                     break  # End of current section
                 if f"## [{tag}]" in line:
@@ -104,7 +104,7 @@ def main():
         sys.exit(1)
     
     prepare_changelog(changelog_path, release_notes_path, tag)
-    get_change_log_notes(changelog_path, f"v{tag}")
+    get_change_log_notes(changelog_path, f"{tag}")
 
 if __name__ == "__main__":
     main()
