@@ -73,7 +73,7 @@ jobs:
 
       - name: Generate Release Notes
         run: |
-          python /path/to/your/changelog_script.py ${{ env.new_version }}
+          python ./.github/scripts/changelog.py ${{ env.new_version }}
           git add .
           git commit -m "[Auto-CHANGELOG] Release ${{ env.new_version }}"
           git push
