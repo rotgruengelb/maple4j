@@ -5,6 +5,8 @@
 > - Please Spell Check your additions to the Changelog before committing them (Use a tool like [LanguageTool](https://languagetool.org)).
 
 ## Unreleased
+
+## [1.0.0](https://github.com/rotgruengelb/maple4j/releases/tag/1.0.0) - 2024-11-13
 ## Added
 - Initial Codebase
   - Maple Parser using ANTLR
