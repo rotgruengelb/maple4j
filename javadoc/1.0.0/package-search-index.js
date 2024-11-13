@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"net.rotgruengelb.maple"},{"l":"net.rotgruengelb.maple.exception"},{"l":"net.rotgruengelb.maple.internal"},{"l":"net.rotgruengelb.maple.internal.generated"},{"l":"net.rotgruengelb.maple.value"}];updateSearchResults();
