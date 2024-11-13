@@ -49,6 +49,8 @@ jobs:
 
   release:
     name: Create release
+    permissions:
+      contents: write
     uses: ./.github/workflows/callable.release.yml
     secrets: inherit
     with:
