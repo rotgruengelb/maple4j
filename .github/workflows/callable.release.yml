@@ -82,9 +82,7 @@ jobs:
         run: |
           chmod +x ./.github/scripts/changelog.sh
           echo "Generating release notes for version ${new_version}..."
-          ./.github/scripts/changelog.sh "${new_version}" > "$GITHUB_WORKSPACE/RELEASE_NOTES.md" || {
-            echo "::error::Failed to generate release notes"; exit 1;
-          }
+          ./.github/scripts/changelog.sh "${new_version}" > "$GITHUB_WORKSPACE/RELEASE_NOTES.md"
 
       - name: Commit release notes
         run: |
