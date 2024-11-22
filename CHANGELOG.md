@@ -6,6 +6,10 @@
 
 ## Unreleased
 
+### Dependencies
+- Bump testcontainers from 1.20.3 to 1.20.4
+
+
 ## [1.0.0](https://github.com/rotgruengelb/maple4j/releases/tag/1.0.0) - 2024-11-13
 ## Added
 - Initial Codebase
