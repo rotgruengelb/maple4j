@@ -6,6 +6,10 @@
 
 ## Unreleased
 
+### Dependencies
+- Bump org.junit.jupiter:junit-jupiter from 5.11.3 to 5.11.4
+
+
 ## [1.0.0](https://github.com/rotgruengelb/maple4j/releases/tag/1.0.0) - 2024-11-13
 ## Added
 - Initial Codebase
