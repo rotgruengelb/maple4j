@@ -11,7 +11,7 @@
 
 
 ## [1.0.0](https://github.com/rotgruengelb/maple4j/releases/tag/1.0.0) - 2024-11-13
-## Added
+### Added
 - Initial Codebase
   - Maple Parser using ANTLR
   - Classes for representing and interacting with the Maple Document Structure 
