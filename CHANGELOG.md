@@ -7,6 +7,7 @@
 ## Unreleased
 
 ### Dependencies
+- Bump org.assertj:assertj-core from 3.26.3 to 3.27.1
 - Bump net.researchgate.release from 3.0.2 to 3.1.0
 - Bump org.junit.jupiter:junit-jupiter from 5.11.3 to 5.11.4
 
