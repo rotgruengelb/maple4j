@@ -7,6 +7,7 @@
 ## Unreleased
 
 ### Dependencies
+- Bump org.assertj:assertj-core from 3.27.1 to 3.27.2
 - Bump testcontainers from 1.20.3 to 1.20.4
 - Bump org.assertj:assertj-core from 3.26.3 to 3.27.1
 - Bump net.researchgate.release from 3.0.2 to 3.1.0
