@@ -7,6 +7,7 @@
 ## Unreleased
 
 ### Dependencies
+- Bump org.jetbrains:annotations from 26.0.1 to 26.0.2
 - Bump org.assertj:assertj-core from 3.27.1 to 3.27.2
 - Bump testcontainers from 1.20.3 to 1.20.4
 - Bump org.assertj:assertj-core from 3.26.3 to 3.27.1
