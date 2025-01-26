@@ -4,7 +4,7 @@ assertj = "3.27.2"
 testcontainers = "1.20.4"
 publish_nexus_plugin = "2.0.0"
 release_plugin = "3.1.0"
-annotations = "26.0.1"
+annotations = "26.0.2"
 antlr = "4.13.2"
 jmh_core = "1.37"
 
